@@ -118,7 +118,7 @@ if (vehicleCount.count < 500000) {
       // Removed hyphen after region, added space
       const year = Math.floor(10 + Math.random() * 15); 
       const suffix = Math.random() > 0.8 ? String.fromCharCode(65 + Math.floor(Math.random() * 26)) : '';
-      const plate = `${region} ${num}${suffix}-${year}`;
+      const plate = `${region} ${num}${suffix} - ${year}`;
       
       const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
       const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
@@ -194,11 +194,13 @@ async function startServer() {
   });
 
   app.get('/api/vehicles/:plate', authenticateToken, (req, res) => {
-    let plate = req.params.plate.toUpperCase();
+    let plate = req.params.plate.toUpperCase().trim();
     
-    // Normalize: if user enters XX-1234 but DB has XX 1234
-    if (plate.length > 3 && plate[2] === '-') {
-      plate = plate.substring(0, 2) + ' ' + plate.substring(3);
+    // Improved normalization for various user/OCR inputs
+    // If input is XX123422 or XX-1234-22, convert to XX 1234 - 22
+    const match = plate.match(/([A-Z]{2})[\s-]?(\d{1,4}[A-Z]?)[\s-]?(\d{2})/);
+    if (match) {
+      plate = `${match[1]} ${match[2]} - ${match[3]}`;
     }
 
     const vehicle = db.prepare('SELECT * FROM vehicles WHERE plate_number = ?').get(plate);

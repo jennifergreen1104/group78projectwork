@@ -190,8 +190,8 @@ const Scanner = ({ onScan, onClose }: { onScan: (text: string) => void, onClose:
       const plateMatch = cleaned.match(/([A-Z]{2})[\s-]?(\d{1,4}[A-Z]?)[\s-]?(\d{2})/);
       
       if (plateMatch) {
-        // Normalize to standard "XX 1234-YY" or "XX 1234A-YY"
-        const formattedPlate = `${plateMatch[1]} ${plateMatch[2]}-${plateMatch[3]}`;
+        // Normalize to standard "XX 1234 - YY" or "XX 1234A - YY"
+        const formattedPlate = `${plateMatch[1]} ${plateMatch[2]} - ${plateMatch[3]}`;
         onScan(formattedPlate);
       } else {
         // Broad search: just look for chunks that look like plates
