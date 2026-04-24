@@ -612,26 +612,117 @@ const FlagPage = ({ token }: { token: string }) => {
   );
 };
 
+const AddOfficerForm = ({ token, onUserAdded }: { token: string, onUserAdded: () => void }) => {
+  const [id, setId] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('group78');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+    setError('');
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ id, username, password, role: 'officer' })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setMessage('Officer added successfully');
+        setId('');
+        setUsername('');
+        setPassword('group78');
+        onUserAdded();
+      } else {
+        setError(data.message || 'Failed to add officer');
+      }
+    } catch (err) {
+      setError('Connection error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-[#151619] border border-white/10 rounded-3xl p-6 mb-8 shadow-xl">
+      <h3 className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-4">Enroll New Officer</h3>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-[10px] font-bold text-white/30 uppercase tracking-widest mb-1.5 ml-1">Officer Service ID</label>
+          <input 
+            type="text" 
+            value={id}
+            onChange={(e) => setId(e.target.value)}
+            className="w-full bg-[#1A1B1F] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50"
+            placeholder="e.g. 10298800"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-[10px] font-bold text-white/30 uppercase tracking-widest mb-1.5 ml-1">Full Name</label>
+          <input 
+            type="text" 
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full bg-[#1A1B1F] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50"
+            placeholder="e.g. JUSTICE ADU"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-[10px] font-bold text-white/30 uppercase tracking-widest mb-1.5 ml-1">Assigned Password</label>
+          <input 
+            type="password" 
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full bg-[#1A1B1F] border border-white/5 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+        {message && <p className="text-emerald-400 text-xs ml-1">{message}</p>}
+        {error && <p className="text-red-400 text-xs ml-1">{error}</p>}
+        <button 
+          type="submit" 
+          disabled={loading}
+          className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+        >
+          {loading ? <Loader2 className="animate-spin w-5 h-5" /> : 'ENROLL OFFICER'}
+        </button>
+      </div>
+    </form>
+  );
+};
+
 const AdminDashboard = ({ token }: { token: string }) => {
   const [stats, setStats] = useState<any>(null);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = async () => {
+    const headers = { 'Authorization': `Bearer ${token}` };
+    const [statsRes, auditRes, usersRes] = await Promise.all([
+      fetch('/api/admin/stats', { headers }),
+      fetch('/api/admin/audit', { headers }),
+      fetch('/api/admin/users', { headers })
+    ]);
+    
+    setStats(await statsRes.json());
+    setAuditLogs(await auditRes.json());
+    setUsers(await usersRes.json());
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      const headers = { 'Authorization': `Bearer ${token}` };
-      const [statsRes, auditRes, usersRes] = await Promise.all([
-        fetch('/api/admin/stats', { headers }),
-        fetch('/api/admin/audit', { headers }),
-        fetch('/api/admin/users', { headers })
-      ]);
-      
-      setStats(await statsRes.json());
-      setAuditLogs(await auditRes.json());
-      setUsers(await usersRes.json());
-      setLoading(false);
-    };
     fetchData();
   }, [token]);
 
@@ -643,6 +734,8 @@ const AdminDashboard = ({ token }: { token: string }) => {
         <h1 className="text-3xl font-bold text-white tracking-tight">Admin Console</h1>
         <p className="text-white/40 text-sm">System oversight & management</p>
       </div>
+
+      <AddOfficerForm token={token} onUserAdded={fetchData} />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

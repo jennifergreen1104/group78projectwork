@@ -246,6 +246,29 @@ async function startServer() {
     res.json(users);
   });
 
+  app.post('/api/admin/users', authenticateToken, isAdmin, (req, res) => {
+    const { id, username, password, role } = req.body;
+    
+    if (!id || !username || !password || !role) {
+      return res.status(400).json({ message: 'All fields (ID, username, password, role) are required.' });
+    }
+
+    try {
+      const hashedPassword = bcrypt.hashSync(password, 10);
+      db.prepare('INSERT INTO users (id, username, password, role) VALUES (?, ?, ?, ?)')
+        .run(id, username, hashedPassword, role);
+      
+      logAudit((req as any).user.id, 'USER_CREATE', `Created user ${username} (ID: ${id}) with role ${role}`);
+      res.json({ success: true, message: 'User created successfully.' });
+    } catch (err: any) {
+      if (err.code === 'SQLITE_CONSTRAINT') {
+        res.status(400).json({ message: 'User ID or Username already exists.' });
+      } else {
+        res.status(500).json({ message: 'Internal server error.' });
+      }
+    }
+  });
+
   app.get('/api/history', authenticateToken, (req, res) => {
     const history = db.prepare(`
       SELECT l.*, v.make, v.model 
