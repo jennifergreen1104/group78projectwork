@@ -1,5 +1,5 @@
 {
-  "name": "AutoVerify GH",
+  "name": "AUTOVERIFY GH",
   "description": "A cross-platform license plate and insurance verification system for Ghana Police.",
   "requestFramePermissions": ["camera"]
 }

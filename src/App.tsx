@@ -60,7 +60,7 @@ const LoginPage = ({ onLogin }: { onLogin: (user: UserType, token: string) => vo
           <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4 border border-emerald-500/20">
             <ShieldCheck className="text-emerald-500 w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">AutoVerify GH</h1>
+          <h1 className="text-2xl font-bold text-white tracking-tight">AUTOVERIFY GH</h1>
           <p className="text-white/40 text-sm mt-1 italic">Ghana Police Service Portal</p>
         </div>
 
