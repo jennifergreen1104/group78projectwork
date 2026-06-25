@@ -261,7 +261,7 @@ const Scanner = ({ onScan, onClose }: { onScan: (text: string) => void, onClose:
         <canvas ref={canvasRef} className="hidden" />
       </div>
 
-      <div className="p-10 bg-[#0A0A0A] border-t border-white/5 flex flex-col items-center gap-6">
+      <div className="pt-6 pb-20 px-6 sm:p-10 bg-[#0A0A0A] border-t border-white/5 flex flex-col items-center gap-6">
         {error && (
           <div className="bg-red-500/10 border border-red-500/20 px-4 py-2 rounded-xl">
             <p className="text-red-400 text-[10px] font-bold uppercase tracking-widest">{error}</p>
