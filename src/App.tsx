@@ -210,8 +210,8 @@ const Scanner = ({ onScan, onClose }: { onScan: (text: string) => void, onClose:
   };
 
   return (
-    <div className="fixed inset-0 bg-[#0A0A0A] z-[100] flex flex-col">
-      <div className="p-6 flex justify-between items-center bg-[#0A0A0A]/80 backdrop-blur-2xl border-b border-white/5">
+    <div className="fixed inset-0 bg-[#0A0A0A] z-[100] flex flex-col overflow-hidden">
+      <div className="p-6 flex justify-between items-center bg-[#0A0A0A]/80 backdrop-blur-2xl border-b border-white/5 z-30 shrink-0">
         <div>
           <h2 className="text-white font-bold tracking-tight">AI Plate Scanner</h2>
           <p className="text-[10px] text-white/30 uppercase tracking-[0.2em] font-bold">Scanning High Resolution Feed</p>
@@ -221,16 +221,16 @@ const Scanner = ({ onScan, onClose }: { onScan: (text: string) => void, onClose:
         </button>
       </div>
       
-      <div className="flex-1 relative bg-black">
+      <div className="flex-1 relative bg-black overflow-hidden flex flex-col justify-end">
         <video 
           ref={videoRef} 
           autoPlay 
           playsInline 
-          className="w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover"
         />
         
         {/* Scanner HUD Overlay */}
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center pb-32 sm:pb-48 md:pb-60 lg:pb-24 xl:pb-32">
           <div className="w-[85%] h-[35%] relative">
             {/* Corners */}
             <div className="absolute -top-1 -left-1 w-10 h-10 border-t-2 border-l-2 border-emerald-500 rounded-tl-2xl" />
@@ -248,44 +248,45 @@ const Scanner = ({ onScan, onClose }: { onScan: (text: string) => void, onClose:
         </div>
 
         {scanning && (
-          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 z-10">
+          <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex flex-col items-center gap-4 z-20">
             <div className="bg-emerald-500/20 backdrop-blur-xl border border-emerald-500/30 px-6 py-3 rounded-2xl shadow-2xl">
-              <div className="flex items-center gap-3">
-                <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
-                <span className="text-emerald-500 text-xs font-bold uppercase tracking-[0.2em]">Processing OCR Data...</span>
-              </div>
+               <div className="flex items-center gap-3">
+                 <Loader2 className="w-5 h-5 text-emerald-500 animate-spin" />
+                 <span className="text-emerald-500 text-xs font-bold uppercase tracking-[0.2em]">Processing OCR Data...</span>
+               </div>
             </div>
           </div>
         )}
         
         <canvas ref={canvasRef} className="hidden" />
-      </div>
 
-      <div className="pt-4 pb-40 sm:pb-10 px-6 bg-[#0A0A0A] border-t border-white/5 flex flex-col items-center gap-4">
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 px-4 py-2 rounded-xl">
-            <p className="text-red-400 text-[10px] font-bold uppercase tracking-widest">{error}</p>
+        {/* Bottom Controls Overlay */}
+        <div className="relative z-20 pt-16 pb-24 sm:pb-36 md:pb-48 lg:pb-8 xl:pb-20 px-6 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/90 to-transparent flex flex-col items-center gap-4 shrink-0 pointer-events-auto">
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 px-4 py-2 rounded-xl">
+              <p className="text-red-400 text-[10px] font-bold uppercase tracking-widest">{error}</p>
+            </div>
+          )}
+          
+          <button 
+            onClick={captureAndScan}
+            disabled={scanning}
+            className="relative group disabled:opacity-50"
+          >
+            <div className="absolute -inset-4 bg-emerald-500/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-2xl relative active:scale-95 transition-transform">
+              {scanning ? (
+                <Loader2 className="w-10 h-10 text-black animate-spin" />
+              ) : (
+                <Camera className="w-10 h-10 text-black" />
+              )}
+            </div>
+          </button>
+          
+          <div className="flex flex-col items-center gap-1 opacity-40">
+            <p className="text-white text-[10px] font-bold uppercase tracking-[0.3em]">Ghana Law Enforcement Utility</p>
+            <p className="text-white text-[8px] uppercase tracking-widest">Ensure plate is inside the marked area</p>
           </div>
-        )}
-        
-        <button 
-          onClick={captureAndScan}
-          disabled={scanning}
-          className="relative group disabled:opacity-50"
-        >
-          <div className="absolute -inset-4 bg-emerald-500/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
-          <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-2xl relative active:scale-95 transition-transform">
-            {scanning ? (
-              <Loader2 className="w-10 h-10 text-black animate-spin" />
-            ) : (
-              <Camera className="w-10 h-10 text-black" />
-            )}
-          </div>
-        </button>
-        
-        <div className="flex flex-col items-center gap-1 opacity-40">
-          <p className="text-white text-[10px] font-bold uppercase tracking-[0.3em]">Ghana Law Enforcement Utility</p>
-          <p className="text-white text-[8px] uppercase tracking-widest">Ensure plate is inside the marked area</p>
         </div>
       </div>
     </div>
